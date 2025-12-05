@@ -4,19 +4,13 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-
-interface Event {
-  id: string
-  date: Date
-  title: string
-  time: string
-}
+import { CalendarEventDto } from "@/api/generated/models"
 
 interface CalendarProps {
-  events: Event[]
+  events: CalendarEventDto[]
   currentMonth: Date
   onMonthChange: (date: Date) => void
-  onEventClick: (event: Event) => void
+  onEventClick: (event: CalendarEventDto) => void
 }
 
 export function Calendar({ events, currentMonth, onMonthChange, onEventClick }: CalendarProps) {
@@ -43,7 +37,7 @@ export function Calendar({ events, currentMonth, onMonthChange, onEventClick }: 
 
   const getEventsForDay = (day: number) => {
     return events.filter((event) => {
-      const eventDate = new Date(event.date)
+      const eventDate = new Date(event.startTime || '')
       return (
         eventDate.getDate() === day &&
         eventDate.getMonth() === currentMonth.getMonth() &&

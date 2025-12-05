@@ -4,21 +4,11 @@ import { X, Clock, Ticket, DollarSign, User, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { CalendarEventDto } from "@/api/generated/models"
 
-interface Event {
-  id: string
-  date: Date
-  title: string
-  time: string
-  poster: string
-  ticketLink: string
-  budget?: string
-  contactPerson?: string
-  notes?: string
-}
 
 interface EventDetailPanelProps {
-  event: Event
+  event: CalendarEventDto
   isLoggedIn: boolean
   onClose: () => void
 }
@@ -39,7 +29,7 @@ export function EventDetailPanel({ event, isLoggedIn, onClose }: EventDetailPane
                 )}
               </div>
               <p className="text-muted-foreground">
-                {event.date.toLocaleDateString("default", {
+                {new Date(event.startTime || '').toLocaleDateString("default", {
                   weekday: "long",
                   year: "numeric",
                   month: "long",
@@ -62,7 +52,7 @@ export function EventDetailPanel({ event, isLoggedIn, onClose }: EventDetailPane
             <div>
               <Card className="overflow-hidden border-border">
                 <img
-                  src={event.poster || "/placeholder.svg"}
+                  src={event.posterUrl || "/placeholder.svg"}
                   alt={`Event poster for ${event.title}`}
                   className="w-full h-auto object-cover"
                 />
@@ -82,7 +72,7 @@ export function EventDetailPanel({ event, isLoggedIn, onClose }: EventDetailPane
                     <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-foreground">Time</p>
-                      <p className="text-sm text-muted-foreground">{event.time}</p>
+                      <p className="text-sm text-muted-foreground">{event.startTime}</p>
                     </div>
                   </div>
                   <div className="pt-3 border-t border-border">
@@ -108,25 +98,18 @@ export function EventDetailPanel({ event, isLoggedIn, onClose }: EventDetailPane
                   </h4>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
-                      <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Budget</p>
-                        <p className="text-sm text-muted-foreground">{event.budget}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
                       <User className="h-4 w-4 text-muted-foreground mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-foreground">Contact Person</p>
-                        <p className="text-sm text-muted-foreground">{event.contactPerson}</p>
+                        <p className="text-sm text-muted-foreground">{event.contractUrl}</p>
                       </div>
                     </div>
-                    {event.notes && (
+                    {event.description && (
                       <div className="flex items-start gap-3">
                         <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div>
                           <p className="text-sm font-medium text-foreground">Notes</p>
-                          <p className="text-sm text-muted-foreground">{event.notes}</p>
+                          <p className="text-sm text-muted-foreground">{event.description}</p>
                         </div>
                       </div>
                     )}

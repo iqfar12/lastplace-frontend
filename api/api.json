@@ -1,0 +1,204 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/auth/signup": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "signup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SignupRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/venues": {
+      "get": {
+        "tags": ["venue-controller"],
+        "operationId": "getVenueList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/VenueResponse" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/venues/{venueId}": {
+      "get": {
+        "tags": ["venue-controller"],
+        "operationId": "getVenueInfo",
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": { "$ref": "#/components/schemas/VenueResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/venues/{venueId}/events": {
+      "get": {
+        "tags": ["venue-controller"],
+        "operationId": "getEvents",
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CalendarEventDto" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SignupRequest": {
+        "type": "object",
+        "required": ["apiKey", "calendarId", "loginId", "password", "venueName"],
+        "properties": {
+          "venueName": { "type": "string", "maxLength": 100, "minLength": 0 },
+          "loginId": { "type": "string", "maxLength": 50, "minLength": 4 },
+          "password": { "type": "string", "maxLength": 2147483647, "minLength": 6 },
+          "calendarId": { "type": "string", "minLength": 1 },
+          "apiKey": { "type": "string", "minLength": 1 }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string" },
+          "venueId": { "type": "integer", "format": "int64" },
+          "venueName": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["loginId", "password"],
+        "properties": {
+          "loginId": { "type": "string", "minLength": 1 },
+          "password": { "type": "string", "minLength": 1 }
+        }
+      },
+      "VenueResponse": {
+        "type": "object",
+        "properties": {
+          "venueId": { "type": "integer", "format": "int64" },
+          "venueName": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CalendarEventDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "startTime": { "type": "string", "format": "date-time" },
+          "endTime": { "type": "string", "format": "date-time" },
+          "description": { "type": "string" },
+          "posterUrl": { "type": "string" },
+          "ticketLink": { "type": "string" },
+          "renterName": { "type": "string" },
+          "engineers": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "contractUrl": { "type": "string" }
+        }
+      }
+    }
+  }
+}

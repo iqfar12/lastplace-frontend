@@ -9,47 +9,59 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar } from "lucide-react"
+import { login, signup } from "@/api/generated/services/auth-controller/auth-controller"
+import { AuthResponse } from "@/api/generated/models"
 
 export default function AuthPage() {
   const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
   const [venueName, setVenueName] = useState("")
-  const [loginId, setLoginId] = useState("")
   const [calendarId, setCalendarId] = useState("")
   const [apiKey, setApiKey] = useState("")
+  const [venueId, setVenueId] = useState(0)
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Simple mock authentication
-    if (isLogin) {
-      // Store user session
-      localStorage.setItem("user", JSON.stringify({ email, isLoggedIn: true }))
-    } else {
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          email,
-          name,
-          venueName,
-          loginId,
-          calendarId,
-          isLoggedIn: true,
-        }),
-      )
+    try {
+      let res: AuthResponse
+      if (isLogin) {
+        res = await login({loginId: email, password: password});
+        if (res) {
+          setVenueId(res.venueId || 0)
+          localStorage.setItem("user", JSON.stringify({ email, venueName: res.venueName, venueId: res.venueId, token: res.token, isLoggedIn: true }))
+        }
+      } else {
+        res = await signup({loginId: email, password: password, venueName: venueName, calendarId: calendarId, apiKey: apiKey})
+        if (res) {
+          setVenueId(res.venueId || 0)
+          localStorage.setItem(
+            "user",
+            JSON.stringify({
+              email,
+              name,
+              venueName: res.venueName,
+              loginId: email,
+              venueId: res.venueId,
+              calendarId,
+              token: res.token,
+              isLoggedIn: true,
+            }),
+          )
+        }
+      }
+    router.push(`/stage/${res.venueId}`)
+    } catch (error) {
+      console.log(error);
     }
-
-    // Redirect to stage page (demo venue)
-    router.push("/stage/venue-1")
   }
 
   const handleContinueAsGuest = () => {
-    // Clear any existing session
     localStorage.removeItem("user")
-    router.push("/stage/venue-1")
+    router.push("/stage")
   }
 
   return (

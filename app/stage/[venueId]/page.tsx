@@ -6,6 +6,8 @@ import { CalendarIcon, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/calendar"
 import { EventDetailPanel } from "@/components/event-detail-panel"
+import { useGetEvents, useGetVenueInfo } from "@/api/generated/services/venue-controller/venue-controller"
+import { CalendarEventDto } from "@/api/generated/models"
 
 const mockEvents = [
   {
@@ -59,13 +61,20 @@ export default function StagePage() {
   const params = useParams()
   const router = useRouter()
   const [user, setUser] = useState<{ email: string; name?: string; isLoggedIn: boolean } | null>(null)
-  const [selectedEvent, setSelectedEvent] = useState<(typeof mockEvents)[0] | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEventDto | null>(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  console.log(params.venueId);
+  const {data: venue} = useGetVenueInfo(parseInt(params?.venueId)|| 0);
+  const {data: event} = useGetEvents(venue?.venueId || 0, {}, {query: {
+    queryKey: [venue]
+  }})
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
       setUser(JSON.parse(storedUser))
+    } else {
+      setUser(null);
     }
   }, [])
 
@@ -79,7 +88,7 @@ export default function StagePage() {
     router.push("/auth")
   }
 
-  const handleEventClick = (event: (typeof mockEvents)[0]) => {
+  const handleEventClick = (event: CalendarEventDto) => {
     setSelectedEvent(event)
   }
 
@@ -96,7 +105,7 @@ export default function StagePage() {
             <CalendarIcon className="h-6 w-6 text-primary" />
             <div>
               <h1 className="text-xl font-bold text-foreground">Stage Calendar</h1>
-              <p className="text-sm text-muted-foreground">Venue: {params.venueId}</p>
+              <p className="text-sm text-muted-foreground">Venue: {venue?.venueName}</p>
             </div>
           </div>
 
@@ -142,7 +151,7 @@ export default function StagePage() {
         </div>
 
         <Calendar
-          events={mockEvents}
+          events={event || []}
           currentMonth={currentMonth}
           onMonthChange={setCurrentMonth}
           onEventClick={handleEventClick}
